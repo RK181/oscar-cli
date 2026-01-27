@@ -36,7 +36,9 @@ import (
 
 const infoPath = "/system/info"
 const configPath = "/system/config"
+const statusPath = "/system/status"
 const _DEFAULT_TIMEOUT = 20
+const BASIC_AUTH = "*cluster.basicAuthRoundTripper"
 
 var (
 	// ErrParsingEndpoint error message for cluster endpoint parsing
@@ -108,6 +110,17 @@ func (trt *tokenRoundTripper) RoundTrip(req *http.Request) (*http.Response, erro
 	// Add bearer token to requests
 	req.Header.Add("Authorization", "Bearer "+trt.token)
 	return trt.transport.RoundTrip(req)
+}
+
+func (cluster *Cluster) SetToken(client *http.Client, token string) {
+	var transport http.RoundTripper = &http.Transport{
+		// Enable/disable ssl verification
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: !cluster.SSLVerify},
+	}
+	client.Transport = &tokenRoundTripper{
+		token:     token,
+		transport: transport,
+	}
 }
 
 // GetClientSafe returns an HTTP client to communicate with the cluster without exiting on errors.
@@ -240,6 +253,41 @@ func (cluster *Cluster) GetClusterConfig() (cfg types.Config, err error) {
 	json.NewDecoder(res.Body).Decode(&cfg)
 
 	return cfg, nil
+}
+
+// GetClusterStatus returns the status of an OSCAR cluster
+func (cluster *Cluster) GetClusterStatus() (status StatusInfo, err error) {
+	getStatusURL, err := url.Parse(cluster.Endpoint)
+	if err != nil {
+		return status, ErrParsingEndpoint
+	}
+	getStatusURL.Path = path.Join(getStatusURL.Path, statusPath)
+
+	req, err := http.NewRequest(http.MethodGet, getStatusURL.String(), nil)
+	if err != nil {
+		return status, ErrMakingRequest
+	}
+
+	client, err := cluster.GetClientSafe()
+	if err != nil {
+		return status, err
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		return status, ErrSendingRequest
+	}
+	defer res.Body.Close()
+
+	if err := CheckStatusCode(res); err != nil {
+		return status, err
+	}
+
+	if err := json.NewDecoder(res.Body).Decode(&status); err != nil {
+		return status, fmt.Errorf("unable to parse cluster status response: %w", err)
+	}
+
+	return status, nil
 }
 
 // CheckStatusCode checks if a cluster response is valid and returns an appropriate error if not

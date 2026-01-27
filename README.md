@@ -134,6 +134,25 @@ Flags:
 
 Global Flags:
       --config string   set the location of the config file (YAML or JSON)
+
+##### status
+
+Show the status reported by the OSCAR Manager API, including node metrics, deployment readiness and MinIO statistics.
+
+```
+Usage:
+  oscar-cli cluster status [flags]
+
+Aliases:
+  status, s
+
+Flags:
+  -c, --cluster string   set the cluster
+  -o, --output string    output format (yaml or json) (default "yaml")
+  -h, --help             help for status
+
+Global Flags:
+      --config string   set the location of the config file (YAML or JSON)
 ```
 
 ##### list
@@ -214,7 +233,7 @@ Flags:
       --owner string    GitHub owner that hosts the curated services (default "grycap")
       --path string     subdirectory inside the repository that contains the services
       --ref string      Git reference (branch, tag, or commit) to query (default "main")
-  -n, --name string     override the OSCAR service name during deployment
+  -n, --name string     override the OSCAR service and primary bucket names during deployment
       --repo string     GitHub repository that hosts the curated services (default "oscar-hub")
 
 Global Flags:
