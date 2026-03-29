@@ -29,6 +29,12 @@ func versionFunc(cmd *cobra.Command, args []string) {
 			}
 		}
 	}
+	for _, s := range info.Settings {
+			if s.Key == "vcs.revision" {
+				fmt.Println("git commit:", s.Value	)
+				
+			}
+		}
 	fmt.Println("git commit:", GitCommit)
 }
 
