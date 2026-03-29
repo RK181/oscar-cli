@@ -1,4 +1,4 @@
-module github.com/grycap/oscar-cli
+module github.com/rk181/oscar-cli
 
 go 1.25
 
