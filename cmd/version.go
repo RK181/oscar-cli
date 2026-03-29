@@ -22,7 +22,7 @@ func versionFunc(cmd *cobra.Command, args []string) {
 	} else {
 		fmt.Println("version: devel")
 	}
-	if GitCommit != "" {
+	if GitCommit == "" {
 		for _, s := range info.Settings {
 			if s.Key == "vcs.revision" {
 				GitCommit = s.Value	
