@@ -14,7 +14,7 @@ var (
 )
 
 func versionFunc(cmd *cobra.Command, args []string) {
-	info, ok := debug.ReadBuildInfo
+	info, _ := debug.ReadBuildInfo
 	if Version != "" {
 		fmt.Println("version:", Version)
 	} else if info.Main.Version != "" {
